@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>School Management System</title>
+<link rel="dns-prefetch" href="https://www.gstatic.com">
+<link rel="dns-prefetch" href="https://firestore.googleapis.com">
+<link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<meta name="theme-color" content="#1a237e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="School App">
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--primary:#1a237e;--primary-l:#3949ab;--primary-d:#0d1642;--accent:#f9a825;--danger:#c62828;--success:#2e7d32;--warn:#e65100;--bg:#eef0f5;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--sw:260px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,'Noto Sans Devanagari',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+/* LOGIN */
+.login-wrap{min-height:100vh;background:linear-gradient(135deg,var(--primary-d),var(--primary) 55%,var(--primary-l));display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:#fff;border-radius:20px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .ico{width:72px;height:72px;background:linear-gradient(135deg,var(--primary),var(--primary-l));border-radius:18px;display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:14px}
+.login-logo h1{font-size:20px;font-weight:800;color:var(--primary);line-height:1.3}
+.login-logo p{color:var(--muted);font-size:13px;margin-top:4px}
+/* FORMS */
+.fg{margin-bottom:18px}.fg label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.fg input,.fg select,.fg textarea{width:100%;padding:12px 15px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.fg input:focus,.fg select:focus{border-color:var(--primary)}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.18)}.btn:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover:not(:disabled){background:var(--primary-l)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}.btn-warn{background:var(--warn);color:#fff}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text)}
+.btn-accent{background:var(--accent);color:var(--primary-d);font-weight:700}
+.btn-full{width:100%;justify-content:center}.btn-sm{padding:7px 14px;font-size:12px}
+/* LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:var(--primary-d);color:#fff;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s;display:flex;flex-direction:column}
+.sb-head{padding:22px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-brand{font-size:14px;font-weight:800;color:var(--accent);line-height:1.3}
+.sb-role{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
+.sb-nav{padding:12px 0;flex:1}
+.nav-sec{padding:10px 18px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 18px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;font-size:13.5px;font-weight:500}
+.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:#fff}
+.nav-item.active{border-right:3px solid var(--accent);color:var(--accent)}
+.nav-item .ni{font-size:16px;width:22px;text-align:center}
+.sb-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.1)}
+.main{margin-left:var(--sw);flex:1;min-height:100vh}
+.topbar{background:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.08);position:sticky;top:0;z-index:50}
+.topbar h2{font-size:18px;font-weight:800;color:var(--primary)}
+.hamburger{display:none;background:none;border:none;font-size:22px;cursor:pointer;color:var(--primary)}
+.page{padding:24px}
+.card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.card-title{font-size:16px;font-weight:800;color:var(--primary)}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;margin-bottom:24px}
+.sc{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.07);border-left:4px solid transparent}
+.sc.blue{border-color:var(--primary)}.sc.gold{border-color:var(--accent)}.sc.green{border-color:var(--success)}.sc.red{border-color:var(--danger)}.sc.ora{border-color:var(--warn)}
+.sc-ico{font-size:26px;margin-bottom:6px}.sc-val{font-size:28px;font-weight:900;color:var(--primary)}.sc-lbl{font-size:12px;color:var(--muted);margin-top:2px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--bg);padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13.5px;vertical-align:middle}
+tbody tr:hover{background:#f6f8ff}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.b-blue{background:#e8eaf6;color:var(--primary)}.b-green{background:#e8f5e9;color:var(--success)}
+.b-red{background:#ffebee;color:var(--danger)}.b-ora{background:#fff3e0;color:var(--warn)}.b-gold{background:#fff8e1;color:#c17900}
+.av{border-radius:50%;background:linear-gradient(135deg,var(--primary-l),var(--primary));display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0}
+.search-bar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.search-bar input,.search-bar select{padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.search-bar input:focus,.search-bar select:focus{border-color:var(--primary)}
+.search-bar input{flex:1;min-width:180px}
+.modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:26px;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-size:17px;font-weight:800;color:var(--primary)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fgrid .fw{grid-column:1/-1}
+.form-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end}
+.fee-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.fbox{text-align:center;padding:14px 10px;border-radius:12px}
+.fbox.due{background:#fff3e0}.fbox.paid{background:#e8f5e9}.fbox.adv{background:#e8eaf6}.fbox.bal{background:#ffebee}
+.fbox .fa{font-size:17px;font-weight:900}
+.fbox.due .fa{color:var(--warn)}.fbox.paid .fa{color:var(--success)}.fbox.adv .fa{color:var(--primary)}.fbox.bal .fa{color:var(--danger)}
+.fbox .fl{font-size:11px;color:var(--muted);margin-top:2px}
+.alert{padding:11px 15px;border-radius:10px;margin-bottom:14px;font-size:13.5px}
+.a-danger{background:#ffebee;color:var(--danger);border-left:4px solid var(--danger)}
+.a-success{background:#e8f5e9;color:var(--success);border-left:4px solid var(--success)}
+.a-info{background:#e8eaf6;color:var(--primary);border-left:4px solid var(--primary)}
+.a-warn{background:#fff3e0;color:var(--warn);border-left:4px solid var(--warn)}
+.info-row{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px}
+.ii .il{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.ii .iv{font-size:14px;font-weight:600;margin-top:2px}
+.stu-av{width:88px;height:88px;border-radius:14px;background:linear-gradient(135deg,var(--primary-l),var(--primary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:800;flex-shrink:0}
+.cls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.cls-card{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07);cursor:pointer;transition:all .2s;border:2px solid transparent}
+.cls-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.cls-card .cn{font-weight:800;font-size:13px;color:var(--primary)}.cls-card .cc{font-size:26px;font-weight:900;margin:4px 0}.cls-card .cl{font-size:11px;color:var(--muted)}
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty .ei{font-size:44px;margin-bottom:10px}.empty p{font-size:15px}
+.spin{display:inline-block;animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+#sbOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+.toast{position:fixed;bottom:24px;right:24px;background:#333;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;z-index:999;opacity:0;transform:translateY(20px);transition:all .3s;max-width:300px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.t-ok{background:var(--success)}.toast.t-info{background:var(--primary)}.toast.t-err{background:var(--danger)}
+/* ... (Baki ka original CSS) ... */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  #sbOverlay.show{display:block}.main{margin-left:0}.hamburger{display:block}
+  .page{padding:14px}.fgrid{grid-template-columns:1fr}.fgrid .fw{grid-column:1}
+  .fee-sum{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.modal{padding:18px}
+}
+</style>
+</head>
+<body>
+
+<div id="loginPage" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="ico">🏫</div>
+      <h1 id="loginName">School Management System</h1>
+      <p>Powered by Firebase</p>
+    </div>
+    <div id="loginErr" class="alert a-danger" style="display:none"></div>
+    <div class="fg"><label>Email / ईमेल</label>
+      <input type="email" id="lEmail" placeholder="director@school.com" autocomplete="email"></div>
+    <div class="fg"><label>Password / पासवर्ड</label>
+      <input type="password" id="lPass" placeholder="Password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" id="loginBtn">🔐 Login</button>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <div id="sbOverlay" onclick="closeSb()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div class="sb-brand" id="sbName">🏫 School</div>
+      <div class="sb-role" id="sbRole">Director</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="nav-sec">मुख्य / Main</div>
+      <div class="nav-item active" onclick="go('dashboard')"><span class="ni">📊</span> Dashboard</div>
+      <div class="nav-sec">छात्र / Students</div>
+      <div class="nav-item" onclick="go('students')"><span class="ni">🎓</span> All Students</div>
+      <div class="nav-item" onclick="go('hostel')"><span class="ni">🏠</span> Hostel Students</div>
+      <div class="nav-item" id="n-bulkup" onclick="go('bulkUpload')"><span class="ni">📤</span> Bulk Upload</div>
+      <div class="nav-sec" id="ns-teacher">शिक्षक / Teachers</div>
+      <div class="nav-item" id="n-teachers" onclick="go('teachers')"><span class="ni">👩‍🏫</span> All Teachers</div>
+      <div class="nav-sec">रिपोर्ट / Reports</div>
+      <div class="nav-item" onclick="go('reports')"><span class="ni">📋</span> Reports</div>
+      <div class="nav-sec" id="ns-settings">सेटिंग / Settings</div>
+      <div class="nav-item" id="n-settings" onclick="go('settings')"><span class="ni">⚙️</span> Settings</div>
+    </nav>
+    <div class="sb-foot">
+      <div class="nav-item" onclick="doLogout()" style="border-radius:10px"><span class="ni">🚪</span> Logout</div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="hamburger" onclick="toggleSb()">☰</button>
+        <h2 id="pgTitle">Dashboard</h2>
+      </div>
+      <span style="font-size:12px;color:var(--muted)" id="tbUser"></span>
+    </div>
+    <div class="page" id="pageContent"><div class="empty"><div class="ei spin">⏳</div><p>Loading...</p></div></div>
+  </main>
+</div>
+
+<div id="modalWrap" class="modal-wrap" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script type="module" defer>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, where, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// ══ YOUR FIREBASE CONFIG ══
+const firebaseConfig = {
+  apiKey: "AIzaSyCCpPisj0rdWJbHYv3SsuFYEGAL1R2QIms",
+  authDomain: "school-management-1000.firebaseapp.com",
+  projectId: "school-management-1000",
+  storageBucket: "school-management-1000.firebasestorage.app",
+  messagingSenderId: "765395236217",
+  appId: "1:765395236217:web:fc0f2d3f5d2e785ec1aba8"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const auth = getAuth(fbApp);
+
+// ── GLOBALS ──
+let CU = null, ROLE = null, UDATA = null, INST = 'School Management System';
+
+// Firestore helpers
+const getOne = async (c, id) => {
+  const s = await getDoc(doc(db, c, id));
+  return s.exists() ? { id: s.id, ...s.data() } : null;
+};
+
+// ── AUTH LOGIC (MODIFIED) ──
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    CU = user;
+    const cached = sessionStorage.getItem('udata_' + user.uid);
+    
+    if (cached) {
+      UDATA = JSON.parse(cached);
+      ROLE = UDATA.role;
+      showApp();
+    } else {
+      try {
+        // Firestore mein 'users' collection check kar rahe hain
+        UDATA = await getOne('users', user.uid); 
+        
+        if (UDATA) {
+          ROLE = UDATA.role;
+          sessionStorage.setItem('udata_' + user.uid, JSON.stringify(UDATA));
+          showApp();
+        } else {
+          // Data nahi mila - Auto SignOut hata diya gaya hai
+          console.error("No user data found in 'users' collection");
+          toast("आपका डेटा Firestore (users collection) में नहीं मिला!", "err");
+          ROLE = 'guest'; // Default role taaki app crash na ho
+          showApp();
+        }
+      } catch (e) {
+        console.error("Error fetching user data:", e);
+        toast("डेटा लोड करने में समस्या आई", "err");
+      }
+    }
+
+    // Settings loading logic
+    const cachedInst = sessionStorage.getItem('inst');
+    if (cachedInst) { INST = cachedInst; }
+    else {
+      getOne('settings', 'main').then(st => {
+        if (st?.institute_name) {
+          INST = st.institute_name;
+          sessionStorage.setItem('inst', INST);
+          document.getElementById('sbName').textContent = '🏫 ' + INST;
+        }
+      });
+    }
+  } else {
+    sessionStorage.clear();
+    showLogin();
+  }
+});
+
+window.doLogin = async function() {
+  const email = document.getElementById('lEmail').value.trim();
+  const pass = document.getElementById('lPass').value;
+  const er = document.getElementById('loginErr');
+  const btn = document.getElementById('loginBtn');
+  
+  er.style.display = 'none';
+  if (!email || !pass) {
+    er.style.display = 'block';
+    er.textContent = '❌ कृपया ईमेल और पासवर्ड डालें';
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ लॉग इन हो रहा है...';
+  
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch (e) {
+    er.style.display = 'block';
+    er.textContent = '❌ लॉगिन फेल: ईमेल या पासवर्ड गलत है';
+    btn.disabled = false;
+    btn.textContent = '🔐 Login';
+  }
+};
+
+window.doLogout = async () => await signOut(auth);
+
+// ── UI FUNCTIONS (From your original code) ──
+function toast(msg, type = 'ok') {
+  const t = document.createElement('div');
+  t.className = `toast t-${type === 'err' ? 'err' : 'ok'}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 400);
+  }, 3500);
+}
+
+function showLogin() {
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('sbName').textContent = '🏫 ' + INST;
+  document.getElementById('tbUser').textContent = UDATA?.name || CU.email;
+  // Dashboard load karein
+  if (window.go) window.go('dashboard');
+}
+
+// Baki ke navigation aur helper functions aapki file se yahan jod sakte hain
+window.go = (page) => {
+    document.getElementById('pgTitle').textContent = page.toUpperCase();
+    document.getElementById('pageContent').innerHTML = `<h3>${page} Page Loaded Successfully</h3>`;
+};
+window.toggleSb = () => document.getElementById('sidebar').classList.toggle('open');
+window.closeSb = () => document.getElementById('sidebar').classList.remove('open');
+window.closeModal = () => document.getElementById('modalWrap').style.display = 'none';
+
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>School Management System</title>
+<link rel="dns-prefetch" href="https://www.gstatic.com">
+<link rel="dns-prefetch" href="https://firestore.googleapis.com">
+<link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<meta name="theme-color" content="#1a237e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="School App">
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--primary:#1a237e;--primary-l:#3949ab;--primary-d:#0d1642;--accent:#f9a825;--danger:#c62828;--success:#2e7d32;--warn:#e65100;--bg:#eef0f5;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--sw:260px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,'Noto Sans Devanagari',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+/* LOGIN */
+.login-wrap{min-height:100vh;background:linear-gradient(135deg,var(--primary-d),var(--primary) 55%,var(--primary-l));display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:#fff;border-radius:20px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .ico{width:72px;height:72px;background:linear-gradient(135deg,var(--primary),var(--primary-l));border-radius:18px;display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:14px}
+.login-logo h1{font-size:20px;font-weight:800;color:var(--primary);line-height:1.3}
+.login-logo p{color:var(--muted);font-size:13px;margin-top:4px}
+/* FORMS */
+.fg{margin-bottom:18px}.fg label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.fg input,.fg select,.fg textarea{width:100%;padding:12px 15px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.fg input:focus,.fg select:focus{border-color:var(--primary)}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.18)}.btn:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover:not(:disabled){background:var(--primary-l)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}.btn-warn{background:var(--warn);color:#fff}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text)}
+.btn-accent{background:var(--accent);color:var(--primary-d);font-weight:700}
+.btn-full{width:100%;justify-content:center}.btn-sm{padding:7px 14px;font-size:12px}
+/* LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:var(--primary-d);color:#fff;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s;display:flex;flex-direction:column}
+.sb-head{padding:22px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-brand{font-size:14px;font-weight:800;color:var(--accent);line-height:1.3}
+.sb-role{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
+.sb-nav{padding:12px 0;flex:1}
+.nav-sec{padding:10px 18px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 18px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;font-size:13.5px;font-weight:500}
+.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:#fff}
+.nav-item.active{border-right:3px solid var(--accent);color:var(--accent)}
+.nav-item .ni{font-size:16px;width:22px;text-align:center}
+.sb-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.1)}
+.main{margin-left:var(--sw);flex:1;min-height:100vh}
+.topbar{background:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.08);position:sticky;top:0;z-index:50}
+.topbar h2{font-size:18px;font-weight:800;color:var(--primary)}
+.hamburger{display:none;background:none;border:none;font-size:22px;cursor:pointer;color:var(--primary)}
+.page{padding:24px}
+.card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.card-title{font-size:16px;font-weight:800;color:var(--primary)}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;margin-bottom:24px}
+.sc{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.07);border-left:4px solid transparent}
+.sc.blue{border-color:var(--primary)}.sc.gold{border-color:var(--accent)}.sc.green{border-color:var(--success)}.sc.red{border-color:var(--danger)}.sc.ora{border-color:var(--warn)}
+.sc-ico{font-size:26px;margin-bottom:6px}.sc-val{font-size:28px;font-weight:900;color:var(--primary)}.sc-lbl{font-size:12px;color:var(--muted);margin-top:2px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--bg);padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13.5px;vertical-align:middle}
+tbody tr:hover{background:#f6f8ff}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.b-blue{background:#e8eaf6;color:var(--primary)}.b-green{background:#e8f5e9;color:var(--success)}
+.b-red{background:#ffebee;color:var(--danger)}.b-ora{background:#fff3e0;color:var(--warn)}.b-gold{background:#fff8e1;color:#c17900}
+.av{border-radius:50%;background:linear-gradient(135deg,var(--primary-l),var(--primary));display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0}
+.search-bar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.search-bar input,.search-bar select{padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.search-bar input:focus,.search-bar select:focus{border-color:var(--primary)}
+.search-bar input{flex:1;min-width:180px}
+.modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:26px;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-size:17px;font-weight:800;color:var(--primary)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fgrid .fw{grid-column:1/-1}
+.form-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end}
+.fee-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.fbox{text-align:center;padding:14px 10px;border-radius:12px}
+.fbox.due{background:#fff3e0}.fbox.paid{background:#e8f5e9}.fbox.adv{background:#e8eaf6}.fbox.bal{background:#ffebee}
+.fbox .fa{font-size:17px;font-weight:900}
+.fbox.due .fa{color:var(--warn)}.fbox.paid .fa{color:var(--success)}.fbox.adv .fa{color:var(--primary)}.fbox.bal .fa{color:var(--danger)}
+.fbox .fl{font-size:11px;color:var(--muted);margin-top:2px}
+.alert{padding:11px 15px;border-radius:10px;margin-bottom:14px;font-size:13.5px}
+.a-danger{background:#ffebee;color:var(--danger);border-left:4px solid var(--danger)}
+.a-success{background:#e8f5e9;color:var(--success);border-left:4px solid var(--success)}
+.a-info{background:#e8eaf6;color:var(--primary);border-left:4px solid var(--primary)}
+.a-warn{background:#fff3e0;color:var(--warn);border-left:4px solid var(--warn)}
+.info-row{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px}
+.ii .il{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.ii .iv{font-size:14px;font-weight:600;margin-top:2px}
+.stu-av{width:88px;height:88px;border-radius:14px;background:linear-gradient(135deg,var(--primary-l),var(--primary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:800;flex-shrink:0}
+.cls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.cls-card{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07);cursor:pointer;transition:all .2s;border:2px solid transparent}
+.cls-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.cls-card .cn{font-weight:800;font-size:13px;color:var(--primary)}.cls-card .cc{font-size:26px;font-weight:900;margin:4px 0}.cls-card .cl{font-size:11px;color:var(--muted)}
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty .ei{font-size:44px;margin-bottom:10px}.empty p{font-size:15px}
+.spin{display:inline-block;animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+#sbOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+.toast{position:fixed;bottom:24px;right:24px;background:#333;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;z-index:999;opacity:0;transform:translateY(20px);transition:all .3s;max-width:300px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.t-ok{background:var(--success)}.toast.t-info{background:var(--primary)}.toast.t-err{background:var(--danger)}
+/* ... (Baki ka original CSS) ... */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  #sbOverlay.show{display:block}.main{margin-left:0}.hamburger{display:block}
+  .page{padding:14px}.fgrid{grid-template-columns:1fr}.fgrid .fw{grid-column:1}
+  .fee-sum{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.modal{padding:18px}
+}
+</style>
+</head>
+<body>
+
+<div id="loginPage" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="ico">🏫</div>
+      <h1 id="loginName">School Management System</h1>
+      <p>Powered by Firebase</p>
+    </div>
+    <div id="loginErr" class="alert a-danger" style="display:none"></div>
+    <div class="fg"><label>Email / ईमेल</label>
+      <input type="email" id="lEmail" placeholder="director@school.com" autocomplete="email"></div>
+    <div class="fg"><label>Password / पासवर्ड</label>
+      <input type="password" id="lPass" placeholder="Password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" id="loginBtn">🔐 Login</button>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <div id="sbOverlay" onclick="closeSb()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div class="sb-brand" id="sbName">🏫 School</div>
+      <div class="sb-role" id="sbRole">Director</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="nav-sec">मुख्य / Main</div>
+      <div class="nav-item active" onclick="go('dashboard')"><span class="ni">📊</span> Dashboard</div>
+      <div class="nav-sec">छात्र / Students</div>
+      <div class="nav-item" onclick="go('students')"><span class="ni">🎓</span> All Students</div>
+      <div class="nav-item" onclick="go('hostel')"><span class="ni">🏠</span> Hostel Students</div>
+      <div class="nav-item" id="n-bulkup" onclick="go('bulkUpload')"><span class="ni">📤</span> Bulk Upload</div>
+      <div class="nav-sec" id="ns-teacher">शिक्षक / Teachers</div>
+      <div class="nav-item" id="n-teachers" onclick="go('teachers')"><span class="ni">👩‍🏫</span> All Teachers</div>
+      <div class="nav-sec">रिपोर्ट / Reports</div>
+      <div class="nav-item" onclick="go('reports')"><span class="ni">📋</span> Reports</div>
+      <div class="nav-sec" id="ns-settings">सेटिंग / Settings</div>
+      <div class="nav-item" id="n-settings" onclick="go('settings')"><span class="ni">⚙️</span> Settings</div>
+    </nav>
+    <div class="sb-foot">
+      <div class="nav-item" onclick="doLogout()" style="border-radius:10px"><span class="ni">🚪</span> Logout</div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="hamburger" onclick="toggleSb()">☰</button>
+        <h2 id="pgTitle">Dashboard</h2>
+      </div>
+      <span style="font-size:12px;color:var(--muted)" id="tbUser"></span>
+    </div>
+    <div class="page" id="pageContent"><div class="empty"><div class="ei spin">⏳</div><p>Loading...</p></div></div>
+  </main>
+</div>
+
+<div id="modalWrap" class="modal-wrap" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-hd">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script type="module" defer>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, where, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// ══ YOUR FIREBASE CONFIG ══
+const firebaseConfig = {
+  apiKey: "AIzaSyCCpPisj0rdWJbHYv3SsuFYEGAL1R2QIms",
+  authDomain: "school-management-1000.firebaseapp.com",
+  projectId: "school-management-1000",
+  storageBucket: "school-management-1000.firebasestorage.app",
+  messagingSenderId: "765395236217",
+  appId: "1:765395236217:web:fc0f2d3f5d2e785ec1aba8"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const auth = getAuth(fbApp);
+
+// ── GLOBALS ──
+let CU = null, ROLE = null, UDATA = null, INST = 'School Management System';
+
+// Firestore helpers
+const getOne = async (c, id) => {
+  const s = await getDoc(doc(db, c, id));
+  return s.exists() ? { id: s.id, ...s.data() } : null;
+};
+
+// ── AUTH LOGIC (MODIFIED) ──
+onAuthStateChanged(auth, async user => {
+  if (user) {
+    CU = user;
+    const cached = sessionStorage.getItem('udata_' + user.uid);
+    
+    if (cached) {
+      UDATA = JSON.parse(cached);
+      ROLE = UDATA.role;
+      showApp();
+    } else {
+      try {
+        // Firestore mein 'users' collection check kar rahe hain
+        UDATA = await getOne('users', user.uid); 
+        
+        if (UDATA) {
+          ROLE = UDATA.role;
+          sessionStorage.setItem('udata_' + user.uid, JSON.stringify(UDATA));
+          showApp();
+        } else {
+          // Data nahi mila - Auto SignOut hata diya gaya hai
+          console.error("No user data found in 'users' collection");
+          toast("आपका डेटा Firestore (users collection) में नहीं मिला!", "err");
+          ROLE = 'guest'; // Default role taaki app crash na ho
+          showApp();
+        }
+      } catch (e) {
+        console.error("Error fetching user data:", e);
+        toast("डेटा लोड करने में समस्या आई", "err");
+      }
+    }
+
+    // Settings loading logic
+    const cachedInst = sessionStorage.getItem('inst');
+    if (cachedInst) { INST = cachedInst; }
+    else {
+      getOne('settings', 'main').then(st => {
+        if (st?.institute_name) {
+          INST = st.institute_name;
+          sessionStorage.setItem('inst', INST);
+          document.getElementById('sbName').textContent = '🏫 ' + INST;
+        }
+      });
+    }
+  } else {
+    sessionStorage.clear();
+    showLogin();
+  }
+});
+
+window.doLogin = async function() {
+  const email = document.getElementById('lEmail').value.trim();
+  const pass = document.getElementById('lPass').value;
+  const er = document.getElementById('loginErr');
+  const btn = document.getElementById('loginBtn');
+  
+  er.style.display = 'none';
+  if (!email || !pass) {
+    er.style.display = 'block';
+    er.textContent = '❌ कृपया ईमेल और पासवर्ड डालें';
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ लॉग इन हो रहा है...';
+  
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch (e) {
+    er.style.display = 'block';
+    er.textContent = '❌ लॉगिन फेल: ईमेल या पासवर्ड गलत है';
+    btn.disabled = false;
+    btn.textContent = '🔐 Login';
+  }
+};
+
+window.doLogout = async () => await signOut(auth);
+
+// ── UI FUNCTIONS (From your original code) ──
+function toast(msg, type = 'ok') {
+  const t = document.createElement('div');
+  t.className = `toast t-${type === 'err' ? 'err' : 'ok'}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 400);
+  }, 3500);
+}
+
+function showLogin() {
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  document.getElementById('sbName').textContent = '🏫 ' + INST;
+  document.getElementById('tbUser').textContent = UDATA?.name || CU.email;
+  // Dashboard load karein
+  if (window.go) window.go('dashboard');
+}
+
+// Baki ke navigation aur helper functions aapki file se yahan jod sakte hain
+window.go = (page) => {
+    document.getElementById('pgTitle').textContent = page.toUpperCase();
+    document.getElementById('pageContent').innerHTML = `<h3>${page} Page Loaded Successfully</h3>`;
+};
+window.toggleSb = () => document.getElementById('sidebar').classList.toggle('open');
+window.closeSb = () => document.getElementById('sidebar').classList.remove('open');
+window.closeModal = () => document.getElementById('modalWrap').style.display = 'none';
+
+</script>
+</body>
+</html>
+
