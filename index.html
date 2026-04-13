@@ -271,15 +271,27 @@ import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,updatePassw
   from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // ══ YOUR FIREBASE CONFIG ══
-const firebaseConfig={
-  apiKey:"AIzaSyCCpPisj0rdWJbHYv3SsuFYEGAL1R2QIms",
-  authDomain:"school-management-1000.firebaseapp.com",
-  projectId:"school-management-1000",
-  storageBucket:"school-management-1000.firebasestorage.app",
-  messagingSenderId:"765395236217",
-  appId:"1:765395236217:web:fc0f2d3f5d2e785ec1aba8"
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+apiKey: "AIzaSyDcJO_h0zyL5MGows-pOOpg0fErJwy3eeE",
+authDomain: "[school-operation.firebaseapp.com](http://school-operation.firebaseapp.com/)",
+projectId: "school-operation",
+storageBucket: "school-operation.firebasestorage.app",
+messagingSenderId: "721955702807",
+appId: "1:721955702807:web:f9c60900c8113fa6967452",
+measurementId: "G-EWMHCS3Y9K"
 };
 
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const fbApp=initializeApp(firebaseConfig);
 const db=getFirestore(fbApp);
 const auth=getAuth(fbApp);
@@ -1979,7 +1991,8 @@ async function processCarryFile(file){
     let rows=[];
     if(file.name.endsWith('.csv')){
       const text=await file.text();
-      rows=text.split(/?\n/).filter(l=>l.trim()).map(l=>{
+      rows=text.split(/
+?\n/).filter(l=>l.trim()).map(l=>{
         const cells=[];let cur='',inQ=false;
         for(const ch of l){if(ch==='"')inQ=!inQ;else if(ch===','&&!inQ){cells.push(cur.trim());cur='';}else cur+=ch;}
         cells.push(cur.trim());return cells;
