@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Management System — Login</title>
+<meta name="theme-color" content="#1a237e">
+<link rel="dns-prefetch" href="https://www.gstatic.com">
+<style>
+:root{--primary:#1a237e;--primary-l:#3949ab;--primary-d:#0d1642;--accent:#f9a825;--danger:#c62828;--success:#2e7d32;--warn:#e65100;--bg:#eef0f5;--text:#1a1a2e;--muted:#6b7280;--border:#e5e7eb;--sw:260px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans','Noto Sans Devanagari',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+/* LOGIN */
+.login-wrap{min-height:100vh;background:linear-gradient(135deg,var(--primary-d),var(--primary) 55%,var(--primary-l));display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:#fff;border-radius:20px;padding:44px 40px;width:100%;max-width:420px;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.login-logo{text-align:center;margin-bottom:32px}
+.login-logo .ico{width:72px;height:72px;background:linear-gradient(135deg,var(--primary),var(--primary-l));border-radius:18px;display:inline-flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:14px}
+.login-logo h1{font-size:20px;font-weight:800;color:var(--primary);line-height:1.3}
+.login-logo p{color:var(--muted);font-size:13px;margin-top:4px}
+/* FORMS */
+.fg{margin-bottom:18px}.fg label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.fg input,.fg select,.fg textarea{width:100%;padding:12px 15px;border:2px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.fg input:focus,.fg select:focus{border-color:var(--primary)}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;border:none;transition:all .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.18)}.btn:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover:not(:disabled){background:var(--primary-l)}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}.btn-warn{background:var(--warn);color:#fff}
+.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text)}
+.btn-accent{background:var(--accent);color:var(--primary-d);font-weight:700}
+.btn-full{width:100%;justify-content:center}.btn-sm{padding:7px 14px;font-size:12px}
+/* LAYOUT */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:var(--primary-d);color:#fff;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:transform .3s;display:flex;flex-direction:column}
+.sb-head{padding:22px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-brand{font-size:14px;font-weight:800;color:var(--accent);line-height:1.3}
+.sb-role{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
+.sb-nav{padding:12px 0;flex:1}
+.nav-sec{padding:10px 18px 4px;font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:11px 18px;color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;font-size:13.5px;font-weight:500}
+.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:#fff}
+.nav-item.active{border-right:3px solid var(--accent);color:var(--accent)}
+.nav-item .ni{font-size:16px;width:22px;text-align:center}
+.sb-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.1)}
+.main{margin-left:var(--sw);flex:1;min-height:100vh}
+.topbar{background:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.08);position:sticky;top:0;z-index:50}
+.topbar h2{font-size:18px;font-weight:800;color:var(--primary)}
+.hamburger{display:none;background:none;border:none;font-size:22px;cursor:pointer;color:var(--primary)}
+.page{padding:24px}
+/* CARDS */
+.card{background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.card-title{font-size:16px;font-weight:800;color:var(--primary)}
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:16px;margin-bottom:24px}
+.sc{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.07);border-left:4px solid transparent}
+.sc.blue{border-color:var(--primary)}.sc.gold{border-color:var(--accent)}.sc.green{border-color:var(--success)}.sc.red{border-color:var(--danger)}.sc.ora{border-color:var(--warn)}
+.sc-ico{font-size:26px;margin-bottom:6px}.sc-val{font-size:28px;font-weight:900;color:var(--primary)}.sc-lbl{font-size:12px;color:var(--muted);margin-top:2px}
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--bg);padding:11px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13.5px;vertical-align:middle}
+tbody tr:hover{background:#f6f8ff}
+/* BADGES */
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.b-blue{background:#e8eaf6;color:var(--primary)}.b-green{background:#e8f5e9;color:var(--success)}
+.b-red{background:#ffebee;color:var(--danger)}.b-ora{background:#fff3e0;color:var(--warn)}.b-gold{background:#fff8e1;color:#c17900}
+.av{border-radius:50%;background:linear-gradient(135deg,var(--primary-l),var(--primary));display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:700;flex-shrink:0}
+/* SEARCH */
+.search-bar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.search-bar input,.search-bar select{padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-size:13.5px;font-family:inherit;outline:none;transition:border-color .2s;background:#fff}
+.search-bar input:focus,.search-bar select:focus{border-color:var(--primary)}
+.search-bar input{flex:1;min-width:180px}
+/* MODAL */
+.modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:26px;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 70px rgba(0,0,0,.35)}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.modal-title{font-size:17px;font-weight:800;color:var(--primary)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fgrid .fw{grid-column:1/-1}
+.form-actions{display:flex;gap:10px;margin-top:22px;justify-content:flex-end}
+/* FEE */
+.fee-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.fbox{text-align:center;padding:14px 10px;border-radius:12px}
+.fbox.due{background:#fff3e0}.fbox.paid{background:#e8f5e9}.fbox.adv{background:#e8eaf6}.fbox.bal{background:#ffebee}
+.fbox .fa{font-size:17px;font-weight:900}
+.fbox.due .fa{color:var(--warn)}.fbox.paid .fa{color:var(--success)}.fbox.adv .fa{color:var(--primary)}.fbox.bal .fa{color:var(--danger)}
+.fbox .fl{font-size:11px;color:var(--muted);margin-top:2px}
+/* ALERTS */
+.alert{padding:11px 15px;border-radius:10px;margin-bottom:14px;font-size:13.5px}
+.a-danger{background:#ffebee;color:var(--danger);border-left:4px solid var(--danger)}
+.a-success{background:#e8f5e9;color:var(--success);border-left:4px solid var(--success)}
+.a-info{background:#e8eaf6;color:var(--primary);border-left:4px solid var(--primary)}
+.a-warn{background:#fff3e0;color:var(--warn);border-left:4px solid var(--warn)}
+/* INFO ROW */
+.info-row{display:flex;flex-wrap:wrap;gap:18px;margin-top:14px}
+.ii .il{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.ii .iv{font-size:14px;font-weight:600;margin-top:2px}
+.stu-av{width:88px;height:88px;border-radius:14px;background:linear-gradient(135deg,var(--primary-l),var(--primary));display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:800;flex-shrink:0}
+/* CLASS GRID */
+.cls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.cls-card{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.07);cursor:pointer;transition:all .2s;border:2px solid transparent}
+.cls-card:hover{border-color:var(--primary);transform:translateY(-2px)}
+.cls-card .cn{font-weight:800;font-size:13px;color:var(--primary)}.cls-card .cc{font-size:26px;font-weight:900;margin:4px 0}.cls-card .cl{font-size:11px;color:var(--muted)}
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty .ei{font-size:44px;margin-bottom:10px}.empty p{font-size:15px}
+/* SPINNER */
+.spin{display:inline-block;animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+#sbOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#333;color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;z-index:999;opacity:0;transform:translateY(20px);transition:all .3s;max-width:300px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.t-ok{background:var(--success)}.toast.t-info{background:var(--primary)}.toast.t-err{background:var(--danger)}
+/* BULK UPLOAD */
+.upload-zone{border:2px dashed var(--border);border-radius:14px;padding:40px;text-align:center;cursor:pointer;transition:all .2s;background:#fafbff}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--primary);background:#eef0f5}
+.upload-zone .ui{font-size:48px;margin-bottom:12px}
+.upload-zone h3{font-size:16px;font-weight:700;color:var(--primary);margin-bottom:6px}
+.upload-zone p{font-size:13px;color:var(--muted)}
+/* REVIEW TABLE */
+.review-table{width:100%;border-collapse:collapse;font-size:13px}
+.review-table th{background:var(--primary);color:#fff;padding:8px 10px;text-align:left;white-space:nowrap}
+.review-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.review-table tr:hover{background:#f6f8ff}
+.review-table input,.review-table select{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;outline:none}
+.review-table input:focus,.review-table select:focus{border-color:var(--primary)}
+.row-ok{background:#f0fff4!important}
+.row-err{background:#fff5f5!important}
+/* PROGRESS */
+.prog-wrap{background:var(--border);border-radius:20px;height:8px;margin:10px 0}
+.prog-bar{height:8px;border-radius:20px;background:linear-gradient(90deg,var(--primary),var(--primary-l));transition:width .3s}
+/* COMPETITION */
+.comp-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.cb-gold{background:#fff8e1;color:#c17900;border:1px solid #f9a825}
+.cb-silver{background:#f5f5f5;color:#555;border:1px solid #ccc}
+.cb-bronze{background:#fbe9e7;color:#bf360c;border:1px solid #ff7043}
+.cb-pass{background:#e8f5e9;color:var(--success)}
+.cb-fail{background:#ffebee;color:var(--danger)}
+/* STEP INDICATOR */
+.steps{display:flex;gap:0;margin-bottom:24px;overflow-x:auto}
+.step{flex:1;min-width:80px;text-align:center;padding:12px 8px;font-size:12px;font-weight:600;color:var(--muted);border-bottom:3px solid var(--border);transition:all .2s}
+.step.active{color:var(--primary);border-color:var(--primary)}
+.step.done{color:var(--success);border-color:var(--success)}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--border);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-bottom:4px}
+.step.active .step-num{background:var(--primary)}
+.step.done .step-num{background:var(--success)}
+/* EDITABLE CELL */
+.edit-cell{position:relative}
+.edit-cell .edit-icon{display:none;position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--muted);cursor:pointer}
+.edit-cell:hover .edit-icon{display:block}
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  #sbOverlay.show{display:block}.main{margin-left:0}.hamburger{display:block}
+  .page{padding:14px}.fgrid{grid-template-columns:1fr}.fgrid .fw{grid-column:1}
+  .fee-sum{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.modal{padding:18px}
+}
+@media print{.sidebar,.topbar,.no-print{display:none!important}.main{margin-left:0!important}.page{padding:0!important}}
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="ico">🏫</div>
+      <h1 id="loginName">School Management System</h1>
+      <p>Powered by Firebase</p>
+    </div>
+    <div id="loginErr" class="alert a-danger" style="display:none"></div>
+    <div class="fg">
+      <label>Email / ईमेल</label>
+      <input type="email" id="lEmail" placeholder="director@school.com" autocomplete="email">
+    </div>
+    <div class="fg">
+      <label>Password / पासवर्ड</label>
+      <input type="password" id="lPass" placeholder="Password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" id="loginBtn">🔐 Login</button>
+    <div style="margin-top:16px;text-align:center;font-size:12px;color:var(--muted)">
+      Director • Teacher • Operator — same login
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getFirestore,doc,getDoc}
+  from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged}
+  from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyAv5e1lTl6uAjpQm4WYT1fH_jwPOHiJ4u0",
+  authDomain:"institute-op.firebaseapp.com",
+  projectId:"institute-op",
+  storageBucket:"institute-op.firebasestorage.app",
+  messagingSenderId:"218000499296",
+  appId:"1:218000499296:web:e53291c1f26574ff4e1905"
+};
+
+const fbApp=initializeApp(firebaseConfig);
+const db=getFirestore(fbApp);
+const auth=getAuth(fbApp);
+
+// If already logged in — redirect to correct dashboard
+onAuthStateChanged(auth,async user=>{
+  if(user){
+    try{
+      const snap=await getDoc(doc(db,'users',user.uid));
+      if(snap.exists()){
+        const role=snap.data().role;
+        sessionStorage.setItem('ud_'+user.uid,JSON.stringify({...snap.data(),id:user.uid}));
+        if(role==='director')       window.location.href='director.html';
+        else if(role==='operator')  window.location.href='operator.html';
+        else                        window.location.href='teacher.html';
+      }else{
+        await signOut(auth);
+      }
+    }catch(e){console.error(e);}
+  }
+});
+
+window.doLogin=async function(){
+  const email=document.getElementById('lEmail').value.trim();
+  const pass=document.getElementById('lPass').value;
+  const er=document.getElementById('loginErr');
+  const btn=document.getElementById('loginBtn');
+  er.style.display='none';
+  if(!email||!pass){er.style.display='block';er.textContent='❌ Email aur password daalein';return;}
+  btn.disabled=true;btn.textContent='⏳ Logging in...';
+  try{
+    await signInWithEmailAndPassword(auth,email,pass);
+    // onAuthStateChanged will handle redirect
+  }catch(e){
+    er.style.display='block';
+    er.textContent='❌ Email ya password galat hai!';
+    btn.disabled=false;btn.textContent='🔐 Login';
+  }
+};
+</script>
+</body>
+</html>
